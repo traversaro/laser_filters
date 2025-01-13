@@ -54,7 +54,8 @@
 #include <rclcpp_lifecycle/lifecycle_node.hpp>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 #include <tf2_ros/buffer.h>
-#include <boost/thread.hpp>
+#include <mutex>
+namespace boost { using recursive_mutex = std::recursive_mutex; }
 #include <rclcpp/rclcpp.hpp>
 #include <rcl_interfaces/msg/set_parameters_result.hpp>
 
@@ -302,7 +303,7 @@ protected:
   rclcpp::node_interfaces::OnSetParametersCallbackHandle::SharedPtr on_set_parameters_callback_handle_;
   virtual rcl_interfaces::msg::SetParametersResult reconfigureCB(std::vector<rclcpp::Parameter> parameters)
   {
-    boost::recursive_mutex::scoped_lock lock(own_mutex_);
+    std::lock_guard<boost::recursive_mutex> lock(own_mutex_);
     auto result = rcl_interfaces::msg::SetParametersResult();
     result.successful = true;
 
@@ -373,7 +374,7 @@ public:
   {
     auto start = std::chrono::high_resolution_clock::now();
 
-    boost::recursive_mutex::scoped_lock lock(own_mutex_);
+    std::lock_guard<boost::recursive_mutex> lock(own_mutex_);
 
     publishPolygon();
 
@@ -488,7 +489,7 @@ public:
 
   bool update(const sensor_msgs::msg::LaserScan& input_scan, sensor_msgs::msg::LaserScan& output_scan) override
   {
-    boost::recursive_mutex::scoped_lock lock(own_mutex_);
+    std::lock_guard<boost::recursive_mutex> lock(own_mutex_);
     publishPolygon();
 
     if (!is_polygon_transformed_) 
