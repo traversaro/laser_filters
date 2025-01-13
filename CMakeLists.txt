@@ -20,6 +20,8 @@ ament_auto_add_library(laser_scan_filters SHARED src/laser_scan_filters.cpp)
 ament_auto_add_library(laser_filter_chains SHARED
                          src/scan_to_cloud_filter_chain.cpp
                          src/scan_to_scan_filter_chain.cpp)
+find_package(Boost REQUIRED COMPONENTS thread)
+target_link_libraries(laser_scan_filters PUBLIC Boost::thread)
 
 # The rclcpp_components_register_node macro registers an rclcpp component for the node with
 # the ament resource index AND creates a templated executable that spins the given node.
